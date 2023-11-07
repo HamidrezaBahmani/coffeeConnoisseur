@@ -1,58 +1,50 @@
-const Airtable = require("airtable");
-const base = new Airtable({
-  apiKey: process.env.NEXT_PUBLIC_AIRTABLE_PAT_KEY,
-}).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE_KEY);
-
-const table = base(process.env.NEXT_PUBLIC_AIRTABLE_TABLE_KEY);
-
-console.log({ table });
+import { getMinifiedRecords, table } from "../../lib/airtable";
 
 const createCoffeeStore = async (req, res) => {
-  console.log({ req });
   if (req.method === "POST") {
-    //find a record
     const { id, name, neighbourhood, address, ImgUrl, voting } = req.body;
 
     try {
-      const findCoffeeStoreRecords = await table
-        .select({
-          filterByFormula: `id=${id}`,
-        })
-        .firstPage();
+      if (id) {
+        const findCoffeeStoreRecords = await table
+          .select({
+            filterByFormula: `id=${id}`,
+          })
+          .firstPage();
 
-      console.log({ findCoffeeStoreRecords });
+        if (findCoffeeStoreRecords.length !== 0) {
+          const records = getMinifiedRecords(findCoffeeStoreRecords);
+          res.json(records);
+        } else {
+          if (name) {
+            const createRecords = await table.create([
+              {
+                fields: {
+                  id,
+                  name,
+                  address,
+                  neighbourhood,
+                  voting,
+                  ImgUrl,
+                },
+              },
+            ]);
+            const records = getMinifiedRecords(createRecords);
 
-      if (findCoffeeStoreRecords.length !== 0) {
-        const records = findCoffeeStoreRecords.map((record) => {
-          return {
-            ...record.fields,
-          };
-        });
-        res.json(records);
+            res.json({ message: "create a record", records });
+          } else {
+            res.status(400);
+            res.json({ message: " name is missing" });
+          }
+        }
       } else {
-        const createRecords = await table.create([
-          {
-            fields: {
-              id,
-              name,
-              address,
-              neighbourhood,
-              voting,
-              ImgUrl,
-            },
-          },
-        ]);
-        const records = createRecords.map((record) => {
-          return {
-            ...record.fields,
-          };
-        });
-        res.json({ message: "create a record", records });
+        res.status(400);
+        res.json({ message: "Id is missing" });
       }
     } catch (error) {
-      console.error("Error finding store", error);
-
-      res.json({ message: "Something went wrong" });
+      console.error("Error creating or finding store", error);
+      res.status(500);
+      res.json({ message: "Error creating or finding store" });
     }
   }
 };
