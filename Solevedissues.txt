@@ -1,0 +1,3 @@
+Is there a way to use a specific DNS for a specific domain?Yessssss
+-copy the command in poweshell
+Add-DnsClientNrptRule -Namespace "api.airtable.com" -NameServers "185.51.200.2"
