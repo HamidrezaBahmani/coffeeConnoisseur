@@ -3,6 +3,8 @@ import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 
+import useSWR from "swr";
+
 import cls from "classnames";
 import { fetchCoffeeStores } from "../../lib/coffee-stores";
 
@@ -97,8 +99,27 @@ const CoffeeStore = (initialProps) => {
   }, [id, initialProps, initialProps.coffeeStore]);
 
   const { name, address, neighborhood, imgUrl } = coffeeStore;
+  const [votingCount, setVotingCount] = useState(1);
 
-  const handleUpvoteButton = () => {};
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}
+  `);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      console.log("data from SWR", data);
+      setCoffeeStore(data[0]);
+      setVotingCount(data[0].voting);
+    }
+  }, [data]);
+
+  const handleUpvoteButton = () => {
+    let count = votingCount + 1;
+    setVotingCount(count);
+  };
+
+  if (error) {
+    return <div>Something went wrong retrieving coffee store page</div>;
+  }
 
   return (
     <div className={styles.layout}>
@@ -142,7 +163,7 @@ const CoffeeStore = (initialProps) => {
           )}
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/star.svg" width="24" height="24" />
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{votingCount}</p>
           </div>
 
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
