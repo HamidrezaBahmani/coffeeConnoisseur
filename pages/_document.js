@@ -1,4 +1,4 @@
-import Document, { Head, Html, NextScript, Main } from "next/document";
+import Document, { Head, Html, Main, NextScript } from "next/document";
 
 class MyDocument extends Document {
   render() {
@@ -7,19 +7,19 @@ class MyDocument extends Document {
         <Head>
           <link
             rel="preload"
-            href="fonts\IBMPlexSans-Bold.ttf"
+            href="/fonts/IBMPlexSans-Bold.ttf"
             as="font"
             crossOrigin="anonymous"
           ></link>
           <link
             rel="preload"
-            href="fonts\IBMPlexSans-Regular.ttf"
+            href="/fonts/IBMPlexSans-Regular.ttf"
             as="font"
             crossOrigin="anonymous"
           ></link>
           <link
             rel="preload"
-            href="fonts\IBMPlexSans-SemiBold.ttf"
+            href="/fonts/IBMPlexSans-SemiBold.ttf"
             as="font"
             crossOrigin="anonymous"
           ></link>
